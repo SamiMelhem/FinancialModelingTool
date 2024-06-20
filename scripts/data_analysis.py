@@ -22,12 +22,26 @@ def inspect_data(data):
     print(data.info())
     print(data.describe())
 
+def handle_missing_values(data):
+    """
+    Handle missing values in the data
+
+    :param data: DataFrame containing the data
+    :return: DataFrame with missing values handled
+    """
+    data_dropped = data.dropna()
+    return data_dropped
+
 def main():
-    # Load the data
+    # Load and inspect data
     filePath = f'C:\\Users\\samim\\OneDrive\\Documents\\Projects\\FinancialModelingTool\\data\\AAPL_historical_data.csv'
     data = load_data(filePath)
     
     inspect_data(data)
+
+    # Handle missing values
+    data_cleaned = handle_missing_values(data)
+    inspect_data(data_cleaned)
 
 if __name__ == "__main__":
     main()
