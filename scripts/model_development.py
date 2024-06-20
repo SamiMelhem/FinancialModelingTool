@@ -43,7 +43,7 @@ def feature_engineering(data):
     # Create a column for daily returns
     data['Daily_Return'] = data['Close'].pct_change() * 100
     # Create a column for volatility (standard deviation of returns over 7 days)
-    data['volatility'] = data['Daily_Return'].rolling(window=7).std()
+    data['Volatility'] = data['Daily_Return'].rolling(window=7).std()
 
     return data
 
