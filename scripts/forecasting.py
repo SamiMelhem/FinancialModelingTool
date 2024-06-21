@@ -3,8 +3,17 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.preprocessing import MinMaxScaler
 from statsmodels.tsa.arima.model import ARIMA
+from tensorflow.python.keras.models import Sequential
+from tensorflow.python.keras.layers import LSTM, Dense
 import matplotlib.pyplot as plt
+
+# 10 ML Forecasts 
+    # Linear Regression, ARIMA (AutoRegressive Integrated Moving Average)
+    # LSTM (Long Short-Term Memory), Prophet, Random Forest, XGBoost
+    # SVR (Support Vector Regression), SARIMA (Seasonal ARIMA)
+    # GBM (Gradient Boosting Machine), and KNN (K-Nearest Neighbors)
 
 def load_data(filePath):
     """

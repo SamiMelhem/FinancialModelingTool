@@ -34,6 +34,10 @@ def handle_missing_values(data):
 
 def main():
     # Load and inspect data
+    tickers = ["MSFT","AAPL","NVDA","GOOG","AMZN","2222.SR","META","TSM","BRK-B","LLY","AVGO","NVO","TSLA","V","JPM","WMT",
+               "XOM","TCEHY","UNH","MA","ASML","PG","ORCL","MC.PA","005930.KS","COST","JNJ","HD","MRK","BAC","ABBV","NFLX",
+               "CVX","NESN.SW","KO","TM","AMD","600519.SS","1398.HK","OR.PA","AZN","601857.SS","RMS.PA","QCOM",
+               "CRM","ADBE","RELIANCE.NS","PEP","ROG.SW", "SAP"]
     filePath = f'C:\\Users\\samim\\OneDrive\\Documents\\Projects\\FinancialModelingTool\\data\\AAPL_historical_data.csv'
     data = load_data(filePath)
     
