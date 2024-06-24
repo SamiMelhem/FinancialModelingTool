@@ -1,12 +1,19 @@
-import pandas as pd
-import numpy as np
+from pandas import read_csv, to_datetime, to_numeric
+from numpy import array, reshape
+from prophet import Prophet
+from lightgbm import LGBMRegressor
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.svm import SVR
 from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.tsa.statespace.sarimax import SARIMAX
 from tensorflow.python.keras.models import Sequential
 from tensorflow.python.keras.layers import LSTM, Dense
+from xgboost import XGBRegressor
 import matplotlib.pyplot as plt
 
 # 10 ML Forecasts 
@@ -22,7 +29,7 @@ def load_data(filePath):
     :param file_path: Path to the CSV file
     :return: DataFrame containing the loaded data
     """
-    data = pd.read_csv(filePath, index_col='Date', parse_dates=True)
+    data = read_csv(filePath, index_col='Date', parse_dates=True)
     return data
 
 def linear_regression_forecast(data):
@@ -33,7 +40,7 @@ def linear_regression_forecast(data):
     :return: Model, predictions, and metrics
     """
     data['Date'] = data.index
-    data['Date'] = pd.to_numeric(data['Date'])
+    data['Date'] = to_numeric(data['Date'])
 
     x = data[['Date']].values
     y = data['Close'].values
@@ -52,7 +59,7 @@ def linear_regression_forecast(data):
 def plot_linear_regression(data, y_pred, x_test, y_test):
     plt.figure(figsize=(14,7))
     plt.plot(data.index, data['Close'], label='Actual Close Price')
-    plt.plot(pd.to_datetime(x_test.flatten()), y_pred, label='Predicted Close Price')
+    plt.plot(to_datetime(x_test.flatten()), y_pred, label='Predicted Close Price')
     plt.title('Linear Regression Forecast')
     plt.xlabel('Date')
     plt.ylabel('Close Price')
@@ -87,6 +94,54 @@ def plot_arima(data, y_pred, test_data):
     plt.ylabel('Close Price')
     plt.legend()
     plt.show()
+
+def create_lstm_model(data, feature_col='Close', n_steps=30):
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    data_scaled = scaler.fit_transform(data[[feature_col]].values)
+
+    X, y = [], []
+    for i in range(n_steps, len(data_scaled)):
+        X.append(data_scaled[i-n_steps:i, 0])
+        y.append(data_scaled[i, 0])
+
+    X, y = array(X), array(y)
+    X = reshape(X, (X.shape[0], X.shape[1], 1))
+
+    model = Sequential()
+    model.add(LSTM(units=50, return_sequences=True, input_shape=(X.shape[1], 1)))
+    model.add(LSTM(units=50))
+    model.add(Dense(1))
+
+    model.compile(optimizer='adam', loss='mean_squared_error')
+    model.fit(X, y, epochs=25, batch_size=32, verbose=2)
+
+    return model, scaler
+
+def predict_lstm(model, scaler, data, n_steps=30):
+    inputs = data['Close'][-n_steps:].values
+    inputs = inputs.reshape(-1, 1)
+    inputs = scaler.trasnform(inputs)
+    inputs = reshape(inputs, (1, n_steps, 1))
+
+    predicted_price = model.predict(inputs)
+    predicted_price = scaler.inverse_transform(predicted_price)
+
+    return predicted_price
+
+def create_prophet_model(data):
+    df = data.reset_index()[['Date', 'Close']]
+    df.columns = ['ds', 'y']
+    
+    model = Prophet(daily_seasonality=True)
+    model.fit(df)
+    
+    return model
+
+def predict_prophet(model, periods=30):
+    future = model.make_future_dataframe(periods=periods)
+    forecast = model.predict(future)
+    
+    return forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']]
 
 def main():
     # Load the data
