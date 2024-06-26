@@ -20,6 +20,7 @@
 
 
 import pandas as pd
+import os
 
 def load_data(filePath):
     """
@@ -102,23 +103,18 @@ def feature_engineering(data):
     return data
 
 def main():
-    tickers = ["MSFT","AAPL","NVDA","GOOG","AMZN","2222.SR","META","TSM","BRK-B","LLY","AVGO","NVO","TSLA","V","JPM","WMT",
-               "XOM","TCEHY","UNH","MA","ASML","PG","ORCL","MC.PA","005930.KS","COST","JNJ","HD","MRK","BAC","ABBV","NFLX",
-               "CVX","NESN.SW","KO","TM","AMD","600519.SS","1398.HK","OR.PA","AZN","601857.SS","RMS.PA","QCOM",
-               "CRM","ADBE","RELIANCE.NS","PEP","ROG.SW", "SAP"]
+    folder_path = 'C:\\Users\\samim\\OneDrive\\Documents\\Projects\\FinancialModelingTool\\data'
     # Feature Engineering
-    for ticker in tickers:
-        # Load and inspect data
-        filePath = f'C:\\Users\\samim\\OneDrive\\Documents\\Projects\\FinancialModelingTool\\data\\AAPL_historical_data.csv'
-        data = load_data(filePath)
-        
-        inspect_data(data)
+    for filename in os.listdir(folder_path):
+        if filename.endswith(".csv"):
+            # Load and inspect data
+            filePath = os.path.join(folder_path, filename)
+            data = load_data(filePath)
+            inspect_data(data)
 
-        data_with_features = feature_engineering(data)
-        filePath = f'C:\\Users\\samim\\OneDrive\\Documents\\Projects\\FinancialModelingTool\\data\\{ticker}_historical_data.csv'
-        inspect_data(data_with_features)
-        data_with_features.to_csv(filePath)
-        inspect_data(data_with_features)
+            data_with_features = feature_engineering(data)
+            data_with_features.to_csv(filePath)
+            inspect_data(data_with_features)
 
 if __name__ == "__main__":
     main()

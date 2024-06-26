@@ -1,6 +1,7 @@
 # Cleaning and Preprocessing Data
 
 import pandas as pd
+import os
 
 def load_data(filePath):
     """
@@ -33,19 +34,19 @@ def handle_missing_values(data):
     return data_dropped
 
 def main():
-    # Load and inspect data
-    tickers = ["MSFT","AAPL","NVDA","GOOG","AMZN","2222.SR","META","TSM","BRK-B","LLY","AVGO","NVO","TSLA","V","JPM","WMT",
-               "XOM","TCEHY","UNH","MA","ASML","PG","ORCL","MC.PA","005930.KS","COST","JNJ","HD","MRK","BAC","ABBV","NFLX",
-               "CVX","NESN.SW","KO","TM","AMD","600519.SS","1398.HK","OR.PA","AZN","601857.SS","RMS.PA","QCOM",
-               "CRM","ADBE","RELIANCE.NS","PEP","ROG.SW", "SAP"]
-    filePath = f'C:\\Users\\samim\\OneDrive\\Documents\\Projects\\FinancialModelingTool\\data\\AAPL_historical_data.csv'
-    data = load_data(filePath)
-    
-    inspect_data(data)
+    # Get all the data from the folder
+    folder_path = 'C:\\Users\\samim\\OneDrive\\Documents\\Projects\\FinancialModelingTool\\data'
+    for filename in os.listdir(folder_path):
+        if filename.endswith(".csv"):
+            # Load and inspect data
+            filePath = os.path.join(folder_path, filename)
+            data = load_data(filePath)
+            inspect_data(data)
 
-    # Handle missing values
-    data_cleaned = handle_missing_values(data)
-    inspect_data(data_cleaned)
+            # Handle missing values
+            data_cleaned = handle_missing_values(data)
+            data_cleaned.to_csv(filePath)
+            inspect_data(data_cleaned)
 
 if __name__ == "__main__":
     main()
