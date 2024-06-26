@@ -5,15 +5,16 @@ from lightgbm import LGBMRegressor
 from os import listdir
 from os.path import join
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
+from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.svm import SVR
 from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.statespace.sarimax import SARIMAX
-from tensorflow.python.keras.models import Sequential
-from tensorflow.python.keras.layers import LSTM, Dense
+from tensorflow.keras.layers import LSTM, Dense
+from tensorflow.keras.models import Sequential
 from xgboost import XGBRegressor
 import matplotlib.pyplot as plt
 
@@ -85,7 +86,7 @@ def create_lstm_model(data, feature_col='Close', n_steps=30):
 def predict_lstm(model, scaler, data, n_steps=30, intervals=[1]):
     inputs = data['Close'][-n_steps:].values
     inputs = inputs.reshape(-1, 1)
-    inputs = scaler.trasnform(inputs)
+    inputs = scaler.transform(inputs)
     inputs = reshape(inputs, (1, n_steps, 1))
 
     predictions = {}
@@ -100,8 +101,9 @@ def predict_lstm(model, scaler, data, n_steps=30, intervals=[1]):
     return predictions
 
 def create_prophet_model(data):
-    df = data.reset_index()[['Date', 'Close']]
-    df.columns = ['ds', 'y']
+    df = data.copy()
+    df = df.rename_axis('ds').reset_index()
+    df = df.rename(columns={'Close': 'y'})
     
     model = Prophet(daily_seasonality=True)
     model.fit(df)
@@ -156,6 +158,10 @@ def create_svr_model(data, feature_cols, target_col='Close'):
     X = data[feature_cols]
     y = data[target_col]
 
+    # Impute missing values
+    imputer = SimpleImputer(strategy='mean')
+    X = imputer.fit_transform(X)
+
     model = SVR(kernel='rbf')
     model.fit(X, y)
 
@@ -204,6 +210,10 @@ def create_knn_model(data, feature_cols, target_col='Close'):
     X = data[feature_cols]
     y = data[target_col]
 
+    # Impute missing values
+    imputer = SimpleImputer(strategy='mean')
+    X = imputer.fit_transform(X)
+
     model = KNeighborsRegressor(n_neighbors=5)
     model.fit(X, y)
 
@@ -234,7 +244,7 @@ def plot_forecasts(data, predictions, company_name):
 def main():
     # Load the data
     folder_path = 'C:\\Users\\samim\\OneDrive\\Documents\\Projects\\FinancialModelingTool\\data'
-    feature_cols = ['7_day_MA', '14_day_MA', '21_day_MA', 'Volume', 'Daily_Return', 'Volatility_7_day', 'High_Low_Diff']
+    feature_cols = ['7_day_MA', '14_day_MA', 'Volume', 'Daily_Return', 'Volatility_7_day', 'High_Low_Diff']
     intervals = [1, 3, 5, 7, 14, 30, 91, 183, 365]  # 1 day, 3 days, 5 days, 1 week, 2 weeks, 1 month, 3 months, 6 months, 1 year
 
     for filename in listdir(folder_path):
