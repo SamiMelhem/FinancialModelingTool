@@ -143,24 +143,133 @@ def predict_prophet(model, periods=30):
     
     return forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']]
 
+def create_rf_model(data, feature_cols, target_col='Close'):
+    X = data[feature_cols]
+    y = data[target_col]
+
+    model = RandomForestClassifier(n_estimators=100)
+    model.fit(X, y)
+
+    return model
+
+def predict_rf(model, data, feature_cols):
+    return model.predict(data[feature_cols])
+
+def create_xgb_model(data, feature_cols, target_col='Close'):
+    X = data[feature_cols]
+    y = data[target_col]
+
+    model = XGBRegressor(objective='reg:squarederror', n_estimators=100)
+    model.fit(X, y)
+
+    return model
+
+def predict_xgb(model, data, feature_cols):
+    return model.predict(data[feature_cols])
+
+def create_svr_model(data, feature_cols, target_col='Close'):
+    X = data[feature_cols]
+    y = data[target_col]
+
+    model = SVR(kernel='rbf')
+    model.fit(X, y)
+
+    return model
+
+def predict_svr(model, data, feature_cols):
+    return model.predict(data[feature_cols])
+
+def create_sarima_model(data, order=(1,1,1), seasonal_order=(1,1,1,12)):
+    model = SARIMAX(data['Close'], order=order, seasonal_order=seasonal_order)
+    model_fit = model.fit(disp=False)
+
+    return model_fit
+
+def predict_sarima(model_fit, steps=30):
+    forecast = model_fit.forecast(steps=steps)
+    return forecast
+
+def create_gbm_model(data, feature_cols, target_col='Close'):
+    X = data[feature_cols]
+    y = data[target_col]
+
+    model = LGBMRegressor()
+    model.fit(X, y)
+
+    return model
+
+def predict_gbm(model, data, feature_cols):
+    return model.predict(data[feature_cols])
+
+def create_knn_model(data, feature_cols, target_col='Close'):
+    X = data[feature_cols]
+    y = data[target_col]
+
+    model = KNeighborsRegressor(n_neighbors=5)
+    model.fit(X, y)
+
+    return model
+
+def predict_knn(model, data, feature_cols):
+    return model.predict(data[feature_cols])
+
 def main():
     # Load the data
-    filePath = f'C:\\Users\\samim\\OneDrive\\Documents\\Projects\\FinancialModelingTool\\data\\AAPL_historical_data.csv'
+    filePath = 'C:\\Users\\samim\\OneDrive\\Documents\\Projects\\FinancialModelingTool\\data\\AAPL_historical_data.csv'
     data = load_data(filePath)
 
-    # Linear Regression and ARIMA Forecasts
-    model, y_pred, mae, mse, x_test, y_test = linear_regression_forecast(data)
-    model_fit, y_pred2, mae2, mse2, test_data = arima_forecast(data)
+    # Linear Regression Forecast
+    lr_model, lr_y_pred, lr_mae, lr_mse, lr_x_test, lr_y_test = linear_regression_forecast(data)
+    print(f"Linear Regression Mean Absolute Error: {lr_mae}")
+    print(f"Linear Regression Mean Squared Error: {lr_mse}")
+    plot_linear_regression(data, lr_y_pred, lr_x_test, lr_y_test)
 
-    print(f"Linear Regression Mean Absolute Error: {mae}")
-    print(f"Linear Regression Mean Squared Error: {mse}")
-    print(f"ARIMA Mean Absolute Error: {mae2}")
-    print(f"ARIMA Mean Squared Error: {mse2}")
+    # ARIMA Forecast
+    arima_model_fit, arima_y_pred, arima_mae, arima_mse, arima_test_data = arima_forecast(data)
+    print(f"ARIMA Mean Absolute Error: {arima_mae}")
+    print(f"ARIMA Mean Squared Error: {arima_mse}")
+    plot_arima(data, arima_y_pred, arima_test_data)
 
-    # Plot the results
-    plot_linear_regression(data, y_pred, x_test, y_test)
-    plot_arima(data, y_pred, test_data)
+    # LSTM Forecast
+    lstm_model, lstm_scaler = create_lstm_model(data)
+    lstm_y_pred = predict_lstm(lstm_model, lstm_scaler, data)
+    print(f"LSTM Predicted Price: {lstm_y_pred}")
 
+    # Prophet Forecast
+    prophet_model = create_prophet_model(data)
+    prophet_forecast = predict_prophet(prophet_model)
+    print(prophet_forecast.tail())
+
+    # Random Forest Forecast
+    feature_cols = ['7_day_MA', '14_day_MA', '21_day_MA', 'Volume', 'Daily_Return', 'Volatility_7_day', 'High_Low_Diff']
+    rf_model = create_rf_model(data, feature_cols)
+    rf_y_pred = predict_rf(rf_model, data, feature_cols)
+    print(f"Random Forest Predicted Prices: {rf_y_pred}")
+
+    # XGBoost Forecast
+    xgb_model = create_xgb_model(data, feature_cols)
+    xgb_y_pred = predict_xgb(xgb_model, data, feature_cols)
+    print(f"XGBoost Predicted Prices: {xgb_y_pred}")
+
+    # SVR Forecast
+    svr_model = create_svr_model(data, feature_cols)
+    svr_y_pred = predict_svr(svr_model, data, feature_cols)
+    print(f"SVR Predicted Prices: {svr_y_pred}")
+
+    # SARIMA Forecast
+    sarima_model_fit = create_sarima_model(data)
+    sarima_forecast = predict_sarima(sarima_model_fit)
+    print(f"SARIMA Predicted Prices: {sarima_forecast}")
+
+    # GBM Forecast
+    gbm_model = create_gbm_model(data, feature_cols)
+    gbm_y_pred = predict_gbm(gbm_model, data, feature_cols)
+    print(f"GBM Predicted Prices: {gbm_y_pred}")
+
+    # KNN Forecast
+    knn_model = create_knn_model(data, feature_cols)
+    knn_y_pred = predict_knn(knn_model, data, feature_cols)
+    print(f"KNN Predicted Prices: {knn_y_pred}")
 
 if __name__ == '__main__':
     main()
