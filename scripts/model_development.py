@@ -18,9 +18,9 @@
         # MACD (Moving Average Convergence Divergence)
     # Calendar Features: Day of the week, month, quarter
 
-
-import pandas as pd
-import os
+from pandas import read_csv, to_datetime
+from os import listdir
+from os.path import join
 
 def load_data(filePath):
     """
@@ -29,7 +29,7 @@ def load_data(filePath):
     :param file_path: Path to the CSV file
     :return: DataFrame containing the loaded data
     """
-    data = pd.read_csv(filePath, index_col='Date', parse_dates=True)
+    data = read_csv(filePath, index_col='Date', parse_dates=True)
     return data
 
 def inspect_data(data):
@@ -50,7 +50,7 @@ def feature_engineering(data):
     :return: DataFrame with new features
     """
     # Ensure the index is a DatetimeIndex
-    data.index = pd.to_datetime(data.index)
+    data.index = to_datetime(data.index)
 
     # Determine the minimum length of data to apply the largest window
     min_length = len(data)
@@ -105,10 +105,10 @@ def feature_engineering(data):
 def main():
     folder_path = 'C:\\Users\\samim\\OneDrive\\Documents\\Projects\\FinancialModelingTool\\data'
     # Feature Engineering
-    for filename in os.listdir(folder_path):
+    for filename in listdir(folder_path):
         if filename.endswith(".csv"):
             # Load and inspect data
-            filePath = os.path.join(folder_path, filename)
+            filePath = join(folder_path, filename)
             data = load_data(filePath)
             inspect_data(data)
 

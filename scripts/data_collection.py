@@ -7,8 +7,7 @@
     # Ticker -> Company Abbreviation
     # start_date, end_date (YYYY-MM-DD)
 
-import yfinance as yf
-import pandas as pd
+from yfinance import download
 
 def fetch_data(ticker, start_date, end_date):
     """
@@ -19,7 +18,7 @@ def fetch_data(ticker, start_date, end_date):
     :param end_date: End date for fetching data (format: 'YYYY-MM-DD')
     :return: DataFrame containing the historical data
     """
-    data = yf.download(ticker, start=start_date, end=end_date)
+    data = download(ticker, start=start_date, end=end_date)
     return data
 
 def main():

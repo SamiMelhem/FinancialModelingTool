@@ -1,7 +1,8 @@
 # Cleaning and Preprocessing Data
 
-import pandas as pd
-import os
+from pandas import read_csv
+from os import listdir
+from os.path import join
 
 def load_data(filePath):
     """
@@ -10,7 +11,7 @@ def load_data(filePath):
     :param file_path: Path to the CSV file
     :return: DataFrame containing the loaded data
     """
-    data = pd.read_csv(filePath, index_col='Date', parse_dates=True)
+    data = read_csv(filePath, index_col='Date', parse_dates=True)
     return data
 
 def inspect_data(data):
@@ -36,10 +37,10 @@ def handle_missing_values(data):
 def main():
     # Get all the data from the folder
     folder_path = 'C:\\Users\\samim\\OneDrive\\Documents\\Projects\\FinancialModelingTool\\data'
-    for filename in os.listdir(folder_path):
+    for filename in listdir(folder_path):
         if filename.endswith(".csv"):
             # Load and inspect data
-            filePath = os.path.join(folder_path, filename)
+            filePath = join(folder_path, filename)
             data = load_data(filePath)
             inspect_data(data)
 
