@@ -1,10 +1,10 @@
-from pandas import read_csv, to_numeric
+from pandas import DataFrame, read_csv, to_numeric
 from numpy import array, reshape, zeros
 from prophet import Prophet
 from lightgbm import LGBMRegressor
 from os import listdir
 from os.path import join
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
@@ -43,7 +43,7 @@ def linear_regression_forecast(data, intervals):
     predictions = {}
     for interval in intervals:
         future_dates = array([x_test[-1][0] + i for i in range(1, interval+1)]).reshape(-1, 1)
-        predictions[f'{intervals}_days'] = model.predict(future_dates)
+        predictions[f'{interval}_days'] = model.predict(future_dates)
 
     return predictions
 
@@ -124,7 +124,11 @@ def create_rf_model(data, feature_cols, target_col='Close'):
     X = data[feature_cols]
     y = data[target_col]
 
-    model = RandomForestClassifier(n_estimators=100)
+    # Impute missing values
+    imputer = SimpleImputer(strategy='mean')
+    X = imputer.fit_transform(X)
+
+    model = RandomForestRegressor(n_estimators=100)
     model.fit(X, y)
 
     return model
@@ -227,19 +231,14 @@ def predict_knn(model, data, feature_cols, intervals):
     
     return predictions
 
-def plot_forecasts(data, predictions, company_name):
-    plt.figure(figsize=(14, 7))
-    plt.plot(data.index, data['Close'], label='Actual Close Price')
-
+def save_forecasts(predictions, company_name):
+    results = []
     for model_name, model_preds in predictions.items():
         for interval, preds in model_preds.items():
-            plt.plot(data.index[-len(preds):], preds, label=f'{model_name} {interval}')
-
-    plt.title(f'Model Forecasts Comparison for {company_name}')
-    plt.xlabel('Date')
-    plt.ylabel('Close Price')
-    plt.legend()
-    plt.show()
+            for i, pred in enumerate(preds):
+                results.append([company_name, model_name, interval, i, pred])
+    df_results = DataFrame(results, columns=['Company', 'Model', 'Interval', 'Day', 'Prediction'])
+    df_results.to_csv(f'C:\\Users\\samim\\OneDrive\\Documents\\Projects\\FinancialModelingTool\\forecast_data\\{company_name}_forecasts.csv', index=False)
 
 def main():
     # Load the data
@@ -257,54 +256,46 @@ def main():
             predictions = {}
 
             # Linear Regression Forecast
-            lr_predictions = linear_regression_forecast(data, intervals)
-            predictions['Linear Regression'] = lr_predictions
+            predictions['Linear Regression'] = linear_regression_forecast(data, intervals)
 
             # ARIMA Forecast
-            arima_predictions = arima_forecast(data, intervals)
-            predictions['ARIMA'] = arima_predictions
+            predictions['ARIMA'] = arima_forecast(data, intervals)
 
             # LSTM Forecast
             lstm_model, lstm_scaler = create_lstm_model(data)
-            lstm_predictions = predict_lstm(lstm_model, lstm_scaler, data, intervals=intervals)
-            predictions['LSTM'] = lstm_predictions
+            predictions['LSTM'] = predict_lstm(lstm_model, lstm_scaler, data, intervals=intervals)
 
             # Prophet Forecast
             prophet_model = create_prophet_model(data)
-            prophet_predictions = predict_prophet(prophet_model, intervals)
-            predictions['Prophet'] = prophet_predictions
+            predictions['Prophet'] = predict_prophet(prophet_model, intervals)
 
             # Random Forest Forecast
             rf_model = create_rf_model(data, feature_cols)
-            rf_predictions = predict_rf(rf_model, data, feature_cols, intervals)
-            predictions['Random Forest'] = rf_predictions
+            predictions['Random Forest'] = predict_rf(rf_model, data, feature_cols, intervals)
 
             # XGBoost Forecast
             xgb_model = create_xgb_model(data, feature_cols)
-            xgb_predictions = predict_xgb(xgb_model, data, feature_cols, intervals)
-            predictions['XGBoost'] = xgb_predictions
+            predictions['XGBoost'] = predict_xgb(xgb_model, data, feature_cols, intervals)
 
             # SVR Forecast
             svr_model = create_svr_model(data, feature_cols)
-            svr_predictions = predict_svr(svr_model, data, feature_cols, intervals)
-            predictions['SVR'] = svr_predictions
+            predictions['SVR'] = predict_svr(svr_model, data, feature_cols, intervals)
 
             # SARIMA Forecast
             sarima_model_fit = create_sarima_model(data)
-            sarima_predictions = predict_sarima(sarima_model_fit, intervals)
-            predictions['SARIMA'] = sarima_predictions
+            predictions['SARIMA'] = predict_sarima(sarima_model_fit, intervals)
 
             # GBM Forecast
             gbm_model = create_gbm_model(data, feature_cols)
-            gbm_predictions = predict_gbm(gbm_model, data, feature_cols, intervals)
-            predictions['GBM'] = gbm_predictions
+            predictions['GBM'] = predict_gbm(gbm_model, data, feature_cols, intervals)
 
             # KNN Forecast
             knn_model = create_knn_model(data, feature_cols)
-            knn_predictions = predict_knn(knn_model, data, feature_cols, intervals)
-            predictions['KNN'] = knn_predictions
+            predictions['KNN'] = predict_knn(knn_model, data, feature_cols, intervals)
 
-            plot_forecasts(data, predictions, company_name)
+            # Save Forecasts
+            save_forecasts(predictions, company_name)
+            
 
 if __name__ == '__main__':
     main()
