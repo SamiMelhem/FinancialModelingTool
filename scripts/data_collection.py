@@ -1,8 +1,4 @@
-# Data Sources
-    # Yahoo Finance (We're going to start with this)
-    # Alpha Vantage
-    # Quandl
-    # IEX Cloud
+# Data Source: Yahoo Finance
 # Fetching Data
     # Ticker -> Company Abbreviation
     # start_date, end_date (YYYY-MM-DD)
@@ -22,7 +18,6 @@ def fetch_data(ticker, start_date, end_date):
     return data
 
 def main():
-    # TODO: Create a system for grabbing the latest top 50 companies
     tickers = ["MSFT","AAPL","NVDA","GOOG","AMZN","2222.SR","META","TSM","BRK-B","LLY","AVGO","NVO","TSLA","V","JPM","WMT",
                "XOM","TCEHY","UNH","MA","ASML","PG","ORCL","MC.PA","005930.KS","COST","JNJ","HD","MRK","BAC","ABBV","NFLX",
                "CVX","NESN.SW","KO","TM","AMD","600519.SS","1398.HK","OR.PA","AZN","601857.SS","RMS.PA","QCOM",

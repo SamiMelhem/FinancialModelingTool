@@ -1,22 +1,4 @@
 # Model Development
-# Features:
-    # Close: The closing price of the stock
-    # Volume: The trading volume of the stock
-    # Moving Averages: Moving 7-day average
-        # Helps with identify the direction of the trend and potential support or resistance levels
-    # Daily Returns: Percentage Change of a security fro one day to the next
-        # Assess short-term performance of a security
-        # Crucial for other metrics like volatility and for time-series analysis
-    # Volatility: Degree of variation in the security price over a specific period
-        # Gauges the riskinesss of a security
-        # Helps in portfolio management by assessing the overall risk and making adjustments to balance the risk-return profile
-    # High-Low Difference: The difference between the daily high and low prices
-    # Lagged Features: Previous values of the above attributes (lags of 1, 3, 5, etc. days)
-    # Rolling Statistics: Rolling mean, median, and standard deviation of the closing prices
-    # Technical Indicators:
-        # RSI (Relative Strength Index)
-        # MACD (Moving Average Convergence Divergence)
-    # Calendar Features: Day of the week, month, quarter
 
 from pandas import read_csv, to_datetime
 from os import listdir

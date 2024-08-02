@@ -91,6 +91,7 @@ def update_graph(selected_company, selected_model, selected_interval):
         mode='lines',
         name='Actual Price'
     )
+    
 
     layout = go.Layout(
         title=f'{selected_company} Stock Price Prediction',
