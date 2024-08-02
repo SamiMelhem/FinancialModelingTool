@@ -40,15 +40,7 @@ Use 10 ML model forecasts in certain time frames with the top 50 largest compani
 - KNN (K-Nearest Neighbors)
 
 Time Frames:
-- 1 day
-- 3 days
-- 5 days
-- 1 week
-- 2 weeks
-- 1 month
-- 3 months
-- 6 months
-- 1 year
+- 1 day, 3 days, 5 days, 1 week, 2 weeks, 1 month, 3 months, 6 months, 1 year
 
 Top 50 companies by market cap (As of 6/21/2024):
 - Microsoft, Apple, NVIDIA, Google, Amazon, Saudi Aramco, Meta, TSMC,Berkshire Hathaway, Eli Lilly, Broadcom, Novo Nordisk, Tesla, Visa, JPMorgan Chase, Walmart, Exxon Mobil, Tencent, United Health, Mastercard, ASML, Procter & Gamble, Oracle, LVMH, Samsung, Costco, Johnson & Johnson, Home Depot, Merck, Bank of America, AbbVie, Netflix, Chevron, Nestle, Coca-Cola, Toyota, AMD, Kweichow Moutai, ICBC, L'Oreal, AstraZeneca, PetroChina, Hermes, QUALCOMM, Salesforce, Adobe, Reliance Industries, Pepsico, Roche, SAP
@@ -100,15 +92,96 @@ The tool makes sure to perform feature engineering by preparing the .csv file of
 ## Forecasting
 The tool uses the following machine learning models for forecasting (along with detailed explanations on each ML model):
 - Linear Regression
+  - A simple yet powerful model that assumes a linear relationship between the input features and the target variable. We use polynomial features to improve the model's capability in capturing non-linear relationships
+  ```
+  from sklearn.preprocessing import PolynomialFeatures
+  from sklearn.pipeline import make_pipeline
+  
+  poly = PolynomialFeatures(degree=3)  # Using degree 3 for polynomial features
+  model = make_pipeline(poly, LinearRegression())
+  model.fit(x_train, y_train)
+  ``` 
 - ARIMA
+  - Widely used for time series forecasting. This model combines three components: AR (AutoRegressive), I (Integrated), and MA (Moving Average).
+  ```
+  from statsmodels.tsa.arima.model import ARIMA
+
+  model = ARIMA(train_data, order=(5, 1, 2))
+  model_fit = model.fit()
+  ``` 
 - LSTM
+  - Type of recurrent neural network (RNN) capable of learning long-term dependencies, especially usefyul for time series forecasting.
+  ```
+  from tensorflow.keras.layers import LSTM, Dense
+  from tensorflow.keras.models import Sequential
+  
+  model = Sequential()
+  model.add(LSTM(units=50, return_sequences=True, input_shape=(X.shape[1], 1)))
+  model.add(LSTM(units=50))
+  model.add(Dense(1))
+  model.compile(optimizer='adam', loss='mean_squared_error')
+  model.fit(X, y, epochs=25, batch_size=32, verbose=2)
+  ```
 - Prophet
+  - Facebook Forecasting tool that works well with time series data that has strong seasonal effects and several seasons of historical data.
+  ```
+  from prophet import Prophet
+
+  df = data.copy()
+  df = df.rename_axis('ds').reset_index()
+  df = df.rename(columns={'Close': 'y'})
+  
+  model = Prophet(daily_seasonality=True, yearly_seasonality=True)
+  model.fit(df)
+  ``` 
 - Random Forest
+  - Ensemble learning method for regression that operates by constructing multiple decision trees and outputs the average predction of the indivdual trees.
+  ```
+  from sklearn.ensemble import RandomForestRegressor
+
+  model = RandomForestRegressor(n_estimators=100)
+  model.fit(X, y)
+  ``` 
 - XGBoost
+  - An optimized distributed gradient boosting library designed for high efficiency, flexibility, and portability.
+  ```
+  from xgboost import XGBRegressor
+
+  model = XGBRegressor(objective='reg:squarederror', n_estimators=100)
+  model.fit(X, y)
+  ```
 - SVR
+  - Type of Support Vector Machine that supports linear and non-linear regression.
+  ```
+  from sklearn.svm import SVR
+  
+  model = SVR(kernel='rbf', C=100, gamma=0.1)
+  model.fit(X, y)
+  ``` 
 - SARIMA
+  - An extension of ARIMA that supports univariate time series data with a seasonal component.
+  ```
+  from statsmodels.tsa.statespace.sarimax import SARIMAX
+
+  model = SARIMAX(data['Close'], order=(1,1,1), seasonal_order=(1,1,1,12), enforce_stationarity=False, enforce_invertibility=False)
+  model_fit = model.fit(disp=False)
+  ``` 
 - GBM
+  - An ensembe machine learning technique for regression and classification problems that produces a prediction model in the form of an ensemble of decision trees.
+  ```
+  from lightgbm import LGBMRegressor
+  
+  model = LGBMRegressor()
+  model.fit(X, y)
+  ```
 - KNN
+  - A non-parametric method used for regression and classification in KNN regression, the output is the average of the values of its k nearest neighbors.
+  ```
+  from sklearn.neighbors import KNeighborsRegressor
+
+  model = KNeighborsRegressor(n_neighbors=5)
+  model.fit(X, y)
+  ```
 
 When going through the forecasting process of all 50 companies the tool collects the prediction accuracy metrics of these models and repeats the process 10 times.
 
