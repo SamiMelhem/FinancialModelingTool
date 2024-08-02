@@ -113,6 +113,11 @@ The tool uses the following machine learning models for forecasting (along with 
 When going through the forecasting process of all 50 companies the tool collects the prediction accuracy metrics of these models and repeats the process 10 times.
 
 ### Prediction Accuracy Calculation
+To calculate the prediction accuracy of these forecasts I developed my own way as opposed to using one's from the intraweb because I want to customize the metric to the tool itself. Here is the philosophy behind calculating this value:
+
+1. Percentage Difference: The distance between the predicted and the actual price of the company stock is the most important objective to achieve with these ML forecasts. Therefore we would need to calculate this first.
+2. Scaling the Difference: Since we want to put more value on the closer the forecast predicts the actual price, the metric uses exponential decay scaling to have a significant dip in the accuracy metric when it's not closer to the stock company price.
+3. Weighted Accuracy: Finally I took the mean of the accuracy for every day predicted and multipled by 100 to get the percentage value of a ML forecast across a time frame.
 
 
 ## Visualization
@@ -137,8 +142,8 @@ ML Model/Time Frame | Linear Regression | ARIMA  | LSTM   | Prophet | Random For
 1 Year              | 23.34%            | 28.79% | 20.43% | 9.07%   | 90.37%        | 99.64%  | 90.49% | 13.68% | 90.47% | 35.11%
 
 ### Trends
-LSTM & SARIMA: Great in short time frames, but trended downwards as the time frame increased.
-SVR: Not great in short time frames, but trended upwards as the time frame increased.
+- LSTM & SARIMA: Great in short time frames, but trended downwards as the time frame increased.
+- SVR: Not great in short time frames, but trended upwards as the time frame increased.
 
 ### Ranks
 1. XGBoost (99.74%)
@@ -157,4 +162,5 @@ SVR: Not great in short time frames, but trended upwards as the time frame incre
 1. Create a web scraper that collects the top 50 companies on the current day to have up to date company analysis.
 2. Fine-tune the ML forecasts towards financial data (Would include using different ML forecasts to compare/contrast).
 3. Train the best forecasts on the top 50 company's complete historical stock data
-4. 
+4. Try different data sources to save time on model development like Alpha Vantage, Quandl, IEX Cloud, etc.
+5. Create the ML model forecasts once and then reference the model for every company instead of having to create it every time for every company (This would reduce producing the results in a quick manner by a lot)
