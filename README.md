@@ -197,7 +197,15 @@ To calculate the prediction accuracy of these forecasts I developed my own way a
 The tool will put all of the results into a Dash application to visualize the results in a neat way. This application will include graphs of the prediction & actual prices of the company stock along with the accruacy metrics.
 
 Below is an example of what the Dash Application should look like:
+![Dash Application Screenshot](DashApplicationDashboard.png)
 
+Here is the structure of the dashboard:
+- Company
+- ML Forecast
+- Time Frame
+- Stock Price Prediction Graph
+- Prediction Accuracy
+- Total Average Accuracy (Based on repeating the process 10 times)
 
 ## Findings
 After running this tool (~8 hours) the results of every ML forecast will dump into the 'average_accuracy_metrics.json' file. Here below are the results of each ML forecast with their respective time frames (rounded to the nearest 2 decimal places):
